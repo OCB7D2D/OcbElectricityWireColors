@@ -18,7 +18,7 @@ public class ElectricityWireColorsPatch : IPatcherMod
 
     public bool Patch(ModuleDefinition module)
     {
-        Console.WriteLine("== ElectricityWireColors Patcher ==");
+        Console.WriteLine("Applying OCB Electricity Wire Colors Patch");
 
         PatchTileEntityPowered(module);
 

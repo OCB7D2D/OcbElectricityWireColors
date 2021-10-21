@@ -11,7 +11,7 @@ public class OcbElectricityWireColors
     {
         public void Start()
         {
-            Debug.Log("Loading Wire Colors Patch: " + GetType().ToString());
+            Debug.Log("Loading OCB Electricity Wire Colors Patch: " + GetType().ToString());
             var harmony = new Harmony(GetType().ToString());
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
