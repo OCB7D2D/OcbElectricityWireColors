@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml>
+	<ModInfo>
+		<Name value="ElectricityWireColors" />
+		<Description value="Color wires according to their power state" />
+		<Website value="https://github.com/OCB7D2D/ElectricityWireColors" />
+		<Author value="mgreter" />
+		<Version value="0.1" />
+	</ModInfo>
+</xml>
