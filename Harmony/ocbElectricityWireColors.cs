@@ -60,7 +60,8 @@ public class OcbElectricityWireColors
                 pulseColor = isPowered ? Color.red : Color.blue;
             }
             else {
-                pulseColor = Color.green;
+                // E.g. for Consumer after Consumer (don't change color)
+                // pulseColor = isPowered ? Color.green : Color.gray;
             }
         }
         // Update pulse color (if needed/changed)
@@ -114,7 +115,7 @@ public class OcbElectricityWireColors
         }
     }
 
-    // Update pulseColor on each tick (MP mode)
+    // Update pulseColor when read from server (MP mode)
     [HarmonyPatch(typeof(TileEntityPowered))]
     [HarmonyPatch("read")]
     public class TileEntityPoweredBlock_read
@@ -137,7 +138,32 @@ public class OcbElectricityWireColors
         }
     }
 
-    // Update pulseColor on each tick (MP mode)
+    // Update pulseColor when power input changes (SP mode)
+    [HarmonyPatch(typeof(PowerConsumerToggle))]
+    [HarmonyPatch("HandlePowerUpdate")]
+    public class PowerConsumerToggle_HandlePowerUpdate
+    {
+        static void Postfix(PowerConsumer __instance)
+        {
+            if (__instance.TileEntity != null)
+                UpdateWireColor(__instance.TileEntity);
+        }
+    }
+
+
+    // Update pulseColor when power input changes (SP mode)
+    [HarmonyPatch(typeof(PowerTrigger))]
+    [HarmonyPatch("HandlePowerUpdate")]
+    public class PowerTrigger_HandlePowerUpdate
+    {
+        static void Postfix(PowerConsumer __instance)
+        {
+            if (__instance.TileEntity != null)
+                UpdateWireColor(__instance.TileEntity);
+        }
+    }
+
+    // Update pulseColor when power input changes (SP mode)
     [HarmonyPatch(typeof(PowerConsumer))]
     [HarmonyPatch("IsPoweredChanged")]
     public class PowerConsumer_IsPoweredChanged
