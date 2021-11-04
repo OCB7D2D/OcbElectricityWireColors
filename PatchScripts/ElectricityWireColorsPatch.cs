@@ -61,11 +61,17 @@ public class ElectricityWireColorsPatch : IPatcherMod
         field.IsPublic = true;
 
     }
-    private void SetMethodToPublic(MethodDefinition field)
+    private void SetMethodToPublic(MethodDefinition field, bool force = false)
     {
-        field.IsFamily = false;
-        field.IsPrivate = false;
-        field.IsPublic = true;
-
+        // Leave protected virtual methods alone to avoid
+        // issues with others inheriting from it, as it gives
+        // a compile error when protection level mismatches.
+        // Unsure if this changes anything on runtime though?
+        if (!field.IsFamily || !field.IsVirtual || force) {
+            field.IsFamily = false;
+            field.IsPrivate = false;
+            field.IsPublic = true;
+        }
     }
+
 }
