@@ -11,7 +11,9 @@ public class ElectricityWireColorsPatch : IPatcherMod
     {
         var type = MakeTypePublic(module.Types.First(d => d.Name == "TileEntityPowered"));
         TypeReference boolTypeRef = module.ImportReference(typeof(bool));
-        TypeReference wireTypeRef = module.ImportReference(typeof(IWireNode));
+        // This fails in 7D2DModLauncher with "Could not load file or assembly"
+        // TypeReference wireTypeRef = module.ImportReference(typeof(IWireNode));
+        TypeReference wireTypeRef = module.Types.First(d => d.Name == "IWireNode");
         type.Fields.Add(new FieldDefinition("ParentWire", FieldAttributes.Public, wireTypeRef));
         type.Fields.Add(new FieldDefinition("isParentSameType", FieldAttributes.Public, boolTypeRef));
     }
