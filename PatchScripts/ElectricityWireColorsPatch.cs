@@ -1,13 +1,20 @@
 using Mono.Cecil;
-using SDX.Compiler;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
-// SDX "compile" time patch to alter dll (EAC incompatible)
-public class ElectricityWireColorsPatch : IPatcherMod
+public static class ElectricityWireColorsPatcher
 {
 
-    public void PatchTileEntityPowered(ModuleDefinition module)
+    public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll" };
+
+    public static void Patch(AssemblyDefinition assembly)
+    {
+        Console.WriteLine("Applying OCB Electricity Wire Colors Patch");
+        PatchTileEntityPowered(assembly.MainModule);
+    }
+
+    public static void PatchTileEntityPowered(ModuleDefinition module)
     {
         var type = MakeTypePublic(module.Types.First(d => d.Name == "TileEntityPowered"));
         TypeReference boolTypeRef = module.ImportReference(typeof(bool));
@@ -18,31 +25,22 @@ public class ElectricityWireColorsPatch : IPatcherMod
         type.Fields.Add(new FieldDefinition("isParentSameType", FieldAttributes.Public, boolTypeRef));
     }
 
-    public bool Patch(ModuleDefinition module)
-    {
-        Console.WriteLine("Applying OCB Electricity Wire Colors Patch");
-
-        PatchTileEntityPowered(module);
-
-        return true;
-    }
-
     // Called after the patching process and after scripts are compiled.
     // Used to link references between both assemblies
     // Return true if successful
-    public bool Link(ModuleDefinition gameModule, ModuleDefinition modModule)
+    public static bool Link(ModuleDefinition gameModule, ModuleDefinition modModule)
     {
         return true;
     }
 
 
     // Helper functions to allow us to access and change variables that are otherwise unavailable.
-    private void SetMethodToVirtual(MethodDefinition method)
+    private static void SetMethodToVirtual(MethodDefinition method)
     {
         method.IsVirtual = true;
     }
 
-    private TypeDefinition MakeTypePublic(TypeDefinition type)
+    private static TypeDefinition MakeTypePublic(TypeDefinition type)
     {
         foreach (var myField in type.Fields)
         {
@@ -56,14 +54,14 @@ public class ElectricityWireColorsPatch : IPatcherMod
         return type;
     }
 
-    private void SetFieldToPublic(FieldDefinition field)
+    private static void SetFieldToPublic(FieldDefinition field)
     {
         field.IsFamily = false;
         field.IsPrivate = false;
         field.IsPublic = true;
 
     }
-    private void SetMethodToPublic(MethodDefinition field, bool force = false)
+    private static void SetMethodToPublic(MethodDefinition field, bool force = false)
     {
         // Leave protected virtual methods alone to avoid
         // issues with others inheriting from it, as it gives

@@ -1,23 +1,17 @@
-using DMT;
 using HarmonyLib;
 using UnityEngine;
 using System.Reflection;
 using System.Collections;
 
-public class OcbElectricityWireColors
+public class ElectricityWireColors : IModApi
 {
-
-    // Entry class for Harmony patching
-    public class OcbElectricityWireColors_Init : IHarmony
+    public void InitMod(Mod mod)
     {
-        public void Start()
-        {
-            Debug.Log("Loading OCB Electricity Wire Colors Patch: " + GetType().ToString());
-            var harmony = new Harmony(GetType().ToString());
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-        }
+        Log.Out(" Loading Patch: " + this.GetType().ToString());
+        var harmony = new HarmonyLib.Harmony(GetType().ToString());
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
-    
+
     // Helper function to update pulse color if necessary
     public static void UpdatePulseColor(IWireNode wire, Color col, bool force = false)
     {
@@ -39,8 +33,8 @@ public class OcbElectricityWireColors
         }
     }
 
-    public static void UpdateWireColor(TileEntityPowered __instance)
-    {
+	public static void UpdateWireColor(TileEntityPowered __instance)
+	{
         // This check is copied from the original function
         // if (!((UnityEngine.Object)__instance.BlockTransform != (UnityEngine.Object)null))
         //     return;
@@ -66,7 +60,7 @@ public class OcbElectricityWireColors
         }
         // Update pulse color (if needed/changed)
         UpdatePulseColor(__instance.ParentWire, pulseColor, true);
-    }
+	}
 
     public static IEnumerator updateWiresLater(TileEntityPowered __instance)
     {
@@ -115,7 +109,7 @@ public class OcbElectricityWireColors
         }
     }
 
-    // Update pulseColor when read from server (MP mode)
+	// Update pulseColor when read from server (MP mode)
     [HarmonyPatch(typeof(TileEntityPowered))]
     [HarmonyPatch("read")]
     public class TileEntityPoweredBlock_read
