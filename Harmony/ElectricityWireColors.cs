@@ -5,6 +5,7 @@ using System.Collections;
 
 public class ElectricityWireColors : IModApi
 {
+
     public void InitMod(Mod mod)
     {
         Log.Out(" Loading Patch: " + this.GetType().ToString());
@@ -33,8 +34,8 @@ public class ElectricityWireColors : IModApi
         }
     }
 
-	public static void UpdateWireColor(TileEntityPowered __instance)
-	{
+    public static void UpdateWireColor(TileEntityPowered __instance)
+    {
         // This check is copied from the original function
         // if (!((UnityEngine.Object)__instance.BlockTransform != (UnityEngine.Object)null))
         //     return;
@@ -60,7 +61,7 @@ public class ElectricityWireColors : IModApi
         }
         // Update pulse color (if needed/changed)
         UpdatePulseColor(__instance.ParentWire, pulseColor, true);
-	}
+    }
 
     public static IEnumerator updateWiresLater(TileEntityPowered __instance)
     {
@@ -109,7 +110,7 @@ public class ElectricityWireColors : IModApi
         }
     }
 
-	// Update pulseColor when read from server (MP mode)
+    // Update pulseColor when read from server (MP mode)
     [HarmonyPatch(typeof(TileEntityPowered))]
     [HarmonyPatch("read")]
     public class TileEntityPoweredBlock_read
@@ -143,7 +144,6 @@ public class ElectricityWireColors : IModApi
                 UpdateWireColor(__instance.TileEntity);
         }
     }
-
 
     // Update pulseColor when power input changes (SP mode)
     [HarmonyPatch(typeof(PowerTrigger))]
