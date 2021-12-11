@@ -6,10 +6,10 @@ a proper connection, or to easier see which items a trigger enables.
 
 <img src="Screens/game-wire-colors.jpg" alt="Wire Colors shown in-game" height="320"/>
 
-In order to use this Mod you need to have [A20BepInExpPreloader][1] installed.
+This module is part of my bigger [Electricity Overhaul Mod][1].
 
 ## Compatibility
 
 I've developed and tested this Mod against version a20.b218
 
-[1]: https://github.com/OCB7D2D/A20BepInExPreloader
+[1]: https://github.com/OCB7D2D/ElectricityOverhaul

@@ -1,139 +1,135 @@
 using HarmonyLib;
 using UnityEngine;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Collections;
 
 public class ElectricityWireColors : IModApi
 {
 
+    // Dynamic accessors for private fields
+    static FieldInfo fieldCurrentCureNodes;
+    static FieldInfo fieldWireDataList;
+
+    // Entry class for A20 patching
     public void InitMod(Mod mod)
     {
         Log.Out(" Loading Patch: " + this.GetType().ToString());
+        fieldCurrentCureNodes = AccessTools.Field(typeof(TileEntityPowered), "currentWireNodes");
+        fieldWireDataList = AccessTools.Field(typeof(TileEntityPowered), "wireDataList");
         var harmony = new HarmonyLib.Harmony(GetType().ToString());
         harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 
     // Helper function to update pulse color if necessary
-    public static void UpdatePulseColor(IWireNode wire, Color col, bool force = false)
+    public static void UpdateWirePulseColor(IWireNode wire, Color col)
     {
-        if (wire is FastWireNode fast)
+        // Just sets the color member
+        wire.SetPulseColor(col);
+        // Make sure color is actually updated on the shader
+        wire.TogglePulse(WireManager.Instance.ShowPulse);
+    }
+
+    public static void UpdateWirePulseColors(TileEntityPowered __instance)
+    {
+        // Bail out if code is running on a server
+        if (GameManager.IsDedicatedServer) return;
+
+        // Get some private fields from TileEntityPowered (fail hard if this returns null)
+        List<Vector3i> wireDataList = fieldWireDataList.GetValue(__instance) as List<Vector3i>;
+        List<IWireNode> currentWireNodes = fieldCurrentCureNodes.GetValue(__instance) as List<IWireNode>;
+
+        // Play safe in case parent class (or we) left the two arrays in a bad state
+        int max = MathUtils.Min(currentWireNodes.Count, wireDataList.Count);
+
+        for (int index = 0; index < max; ++index)
         {
-            if (fast.pulseColor != col || true)
+            Vector3i wireData = wireDataList[index];
+            if (GameManager.Instance.World.GetChunkFromWorldPos(wireData) is Chunk chunk)
             {
-                fast.SetPulseColor(col);
-                fast.TogglePulse(WireManager.Instance.ShowPulse);
-            }
-        }
-        else if (wire is WireNode node)
-        {
-            if (node.pulseColor != col || true)
-            {
-                node.SetPulseColor(col);
-                node.TogglePulse(WireManager.Instance.ShowPulse);
+                if (GameManager.Instance.World.GetTileEntity(chunk.ClrIdx, wireData) is TileEntityPowered tileEntity)
+                {
+                    bool isPowered = __instance.IsPowered && tileEntity.IsPowered;
+                    Color pulseColor = isPowered ? Color.yellow : Color.gray;
+                    if (__instance.PowerItemType == tileEntity.PowerItemType)
+                    {
+                        if (__instance.PowerItemType == PowerItem.PowerItemTypes.TripWireRelay)
+                        {
+                            pulseColor = isPowered ? Color.magenta : Color.cyan;
+                        }
+                        else if (__instance.PowerItemType == PowerItem.PowerItemTypes.ElectricWireRelay)
+                        {
+                            pulseColor = isPowered ? Color.red : Color.blue;
+                        }
+                    }
+                    UpdateWirePulseColor(currentWireNodes[index], pulseColor);
+                }
             }
         }
     }
 
-    public static void UpdateWireColor(TileEntityPowered __instance)
+    // At some point we had an issue that we were called to early (e.g. when power source is powered on)
+    public static IEnumerator UpdateWirePulseColorsLater(TileEntityPowered __instance, float delay)
     {
-        // This check is copied from the original function
-        // if (!((UnityEngine.Object)__instance.BlockTransform != (UnityEngine.Object)null))
-        //     return;
-        // Get the power state for this power tile entity
-        bool isPowered = __instance.IsPowered;
-        // Default pulse color is yellow or gray
-        Color pulseColor = isPowered ? Color.yellow : Color.gray;
-        // Check if we have a parent wire of the same type
-        if (__instance.ParentWire != null && __instance.isParentSameType)
-        {
-            if (__instance.PowerItemType == PowerItem.PowerItemTypes.TripWireRelay)
-            {
-                pulseColor = isPowered ? Color.magenta : Color.cyan;
-            }
-            else if (__instance.PowerItemType == PowerItem.PowerItemTypes.ElectricWireRelay)
-            {
-                pulseColor = isPowered ? Color.red : Color.blue;
-            }
-            else {
-                // E.g. for Consumer after Consumer (don't change color)
-                // pulseColor = isPowered ? Color.green : Color.gray;
-            }
-        }
-        // Update pulse color (if needed/changed)
-        UpdatePulseColor(__instance.ParentWire, pulseColor, true);
-    }
-
-    public static IEnumerator updateWiresLater(TileEntityPowered __instance)
-    {
-        yield return (object) new WaitForSeconds(0.5f);
-        UpdateWireColor(__instance);
+        yield return new WaitForSeconds(delay);
+        UpdateWirePulseColors(__instance);
     }
 
     // Do some additional work after DrawWires was executed
     // Store some information we need later to color the wires
     [HarmonyPatch(typeof(TileEntityPowered))]
     [HarmonyPatch("DrawWires")]
-    public class TileEntityPowerSource_DrawWires
+    public class TileEntityPowered_DrawWires
     {
         static void Postfix(TileEntityPowered __instance)
         {
-            // Check that counts match up (should always be the case, but be cautious)
-            // if (__instance.wireDataList.Count != __instance.currentWireNodes.Count) {
-            //     Log.Out("TileEntityPowered not correctly initialized?");
-            // }
-            // ToDo: Check why this can be different at all after `DrawWires`
-            // Note: seems to work none the less (so don't really care too much)
-            for (int i = 0; i < __instance.currentWireNodes.Count; ++i)
-            {
-                IWireNode wire = __instance.currentWireNodes[i];
-                Vector3i  data = new Vector3i(wire.GetEndPosition());
-                if (GameManager.Instance.World.GetChunkFromWorldPos(data) is Chunk chunk)
-                {
-                    TileEntityPowered tileEntity = GameManager.Instance.World
-                        .GetTileEntity(chunk.ClrIdx, data) as TileEntityPowered;
-                    if (tileEntity == null) continue;
-                    if (wire is FastWireNode fast)
-                    {
-                        tileEntity.isParentSameType = fast.pulseColor != Color.yellow
-                                                        && fast.pulseColor != Color.gray;
-                    }
-                    else if (wire is WireNode node)
-                    {
-                        tileEntity.isParentSameType = node.pulseColor != Color.yellow
-                                                        && node.pulseColor != Color.gray;
-                    }
-                    tileEntity.ParentWire = wire;
-                }
-            }
-            GameManager.Instance.StartCoroutine(updateWiresLater(__instance));
-            UpdateWireColor(__instance);
+            IEnumerator coroutine = UpdateWirePulseColorsLater(__instance, 0.5f);
+            GameManager.Instance.StartCoroutine(coroutine);
+            UpdateWirePulseColors(__instance);
         }
     }
 
-    // Update pulseColor when read from server (MP mode)
-    [HarmonyPatch(typeof(TileEntityPowered))]
-    [HarmonyPatch("read")]
-    public class TileEntityPoweredBlock_read
+    // Update pulse color when power source is switched on/off
+    // This is problematic, as downstream children are not powered yet
+    // The power distribution will take place when power manager ticks
+    [HarmonyPatch(typeof(PowerSource))]
+    [HarmonyPatch("HandleOnOffSound")]
+    public class PowerSource_HandleOnOffSound
     {
-        static void Postfix(TileEntityPoweredBlock __instance)
+        static void Postfix(PowerSource __instance)
         {
-            UpdateWireColor(__instance);
+            if (__instance.TileEntity != null)
+            {
+                // Schedule an update to happen in 0.25 (in order to let power source tick once)
+                // Necessary since the items connected to this source haven't been powered yet
+                // They will get separate `HandlePowerUpdate` events later, but they only color
+                // their child wires and not the parent connection, as we previously did when
+                // we stored the `parentWire` information to the TileEntity. Since we now only
+                // try to be A20 compatible, we can't easily get the parent wire. There are ways,
+                // but this seems to be a much nicer solution, as it should be quite CPU friendly.
+                IEnumerator coroutine = UpdateWirePulseColorsLater(__instance.TileEntity, 0.25f);
+                GameManager.Instance.StartCoroutine(coroutine);
+                // The off state can be determined easily :)
+                UpdateWirePulseColors(__instance.TileEntity);
+            }
         }
     }
 
-    // Update pulseColor on each tick (MP mode)
+    // Update pulse color when power changed
+    // Called when wires get dis/reconnected
     [HarmonyPatch(typeof(PowerConsumer))]
     [HarmonyPatch("HandlePowerUpdate")]
     public class PowerConsumer_HandlePowerUpdate
     {
         static void Postfix(PowerConsumer __instance)
         {
-            if (__instance.TileEntity != null)
-                UpdateWireColor(__instance.TileEntity);
+            // Parent connection may not be there yet!
+            if (__instance.TileEntity == null) return;
+            UpdateWirePulseColors(__instance.TileEntity);
         }
     }
 
-    // Update pulseColor when power input changes (SP mode)
+    // Update pulse color when available power changes
     [HarmonyPatch(typeof(PowerConsumerToggle))]
     [HarmonyPatch("HandlePowerUpdate")]
     public class PowerConsumerToggle_HandlePowerUpdate
@@ -141,32 +137,55 @@ public class ElectricityWireColors : IModApi
         static void Postfix(PowerConsumer __instance)
         {
             if (__instance.TileEntity != null)
-                UpdateWireColor(__instance.TileEntity);
+                UpdateWirePulseColors(__instance.TileEntity);
         }
     }
 
-    // Update pulseColor when power input changes (SP mode)
+    // Update pulse color when power is triggered
     [HarmonyPatch(typeof(PowerTrigger))]
     [HarmonyPatch("HandlePowerUpdate")]
     public class PowerTrigger_HandlePowerUpdate
     {
-        static void Postfix(PowerConsumer __instance)
+        static void Postfix(PowerTrigger __instance)
         {
-            if (__instance.TileEntity != null)
-                UpdateWireColor(__instance.TileEntity);
+            if (__instance.TileEntity == null) return;
+            UpdateWirePulseColors(__instance.TileEntity);
+        }
+    }
+
+    // Update pulse color when power is time triggered
+    [HarmonyPatch(typeof(PowerTimerRelay))]
+    [HarmonyPatch("HandlePowerUpdate")]
+    public class PowerTimerRelay_HandlePowerUpdate
+    {
+        static void Postfix(PowerTimerRelay __instance)
+        {
+            if (__instance.TileEntity == null) return;
+            UpdateWirePulseColors(__instance.TileEntity);
+        }
+    }
+
+    // Update pulseColor when read from server (MP mode)
+    [HarmonyPatch(typeof(TileEntityPowered))]
+    [HarmonyPatch("read")]
+    public class TileEntityPowered_read
+    {
+        static void Postfix(TileEntityPowered __instance)
+        {
+            UpdateWirePulseColors(__instance);
         }
     }
 
     // Update pulseColor when power input changes (SP mode)
-    [HarmonyPatch(typeof(PowerConsumer))]
-    [HarmonyPatch("IsPoweredChanged")]
-    public class PowerConsumer_IsPoweredChanged
-    {
-        static void Postfix(PowerConsumer __instance)
-        {
-            if (__instance.TileEntity != null)
-                UpdateWireColor(__instance.TileEntity);
-        }
-    }
+    // [HarmonyPatch(typeof(PowerConsumer))]
+    // [HarmonyPatch("IsPoweredChanged")]
+    // public class PowerConsumer_IsPoweredChanged
+    // {
+    //     static void Postfix(PowerConsumer __instance)
+    //     {
+    //         if (__instance.TileEntity != null)
+    //             UpdateWirePulseColors(__instance.TileEntity);
+    //     }
+    // }
 
 }
