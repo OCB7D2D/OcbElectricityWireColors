@@ -6,10 +6,25 @@ a proper connection, or to easier see which items a trigger enables.
 
 <img src="Screens/game-wire-colors.jpg" alt="Wire Colors shown in-game" height="320"/>
 
-This module is part of my bigger [Electricity Overhaul Mod][1].
+This module was broken out of my [Electricity Overhaul Mod][1].  
+You can use it standalone or alongside [Electricity Overhaul Mod][1].
+
+## Changelog
+
+## Version 1.0.0
+
+- Refactor code to be much cleaner and more robust
+
+## Version 0.9.0
+
+- Remove BepInEx requirement (refactored completely)
+
+## Version 0.8.0
+
+- Refactor for A20 compatibility
 
 ## Compatibility
 
-I've developed and tested this Mod against version a20.b218
+I've developed and tested this Mod against version a20.b238
 
 [1]: https://github.com/OCB7D2D/ElectricityOverhaul
