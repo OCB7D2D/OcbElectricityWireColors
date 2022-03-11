@@ -7,13 +7,13 @@ public class ElectricityWireColors : IModApi
 {
 
     // Dynamic accessors for private fields
-    static FieldInfo fieldCurrentCureNodes;
+    static FieldInfo fieldCurrentWireNodes;
 
     // Entry class for A20 patching
     public void InitMod(Mod mod)
     {
         Log.Out(" Loading Patch: " + this.GetType().ToString());
-        fieldCurrentCureNodes = AccessTools.Field(typeof(TileEntityPowered), "currentWireNodes");
+        fieldCurrentWireNodes = AccessTools.Field(typeof(TileEntityPowered), "currentWireNodes");
         new Harmony(GetType().ToString()).PatchAll(Assembly.GetExecutingAssembly());
     }
 
@@ -50,9 +50,10 @@ public class ElectricityWireColors : IModApi
     private static void UpdateParentWire(PowerItem item)
     {
         if (item == null || item.Parent == null) return;
+        if (item.Parent.TileEntity == null) return;
         // Get all wires of the parent (ours included)
         // Would be cool if parent wire would be stored here
-        List<IWireNode> wires = fieldCurrentCureNodes.
+        List<IWireNode> wires = fieldCurrentWireNodes.
             GetValue(item.Parent.TileEntity) as List<IWireNode>;
         // Now process all wires of parent
         foreach (var wire in wires)
@@ -60,8 +61,9 @@ public class ElectricityWireColors : IModApi
             // Check if the wire has the same end position
             // Note: we could probably get rid of this check
             // Would do a little more work, but still correct!?
-            if (wire.GetEndPosition() != item.Position) continue;
-            // If so, update the wire pulse color
+            // Note: check is buggy since it seems `GetEndPosition`
+            // returns "local" positions when save is loaded!?
+            // if (wire.GetEndPosition() != item.Position) continue;
             UpdateWireColor(wire, item.TileEntity);
             if (WireManager.HasInstance == false) continue;
             wire.TogglePulse(WireManager.Instance.ShowPulse);
