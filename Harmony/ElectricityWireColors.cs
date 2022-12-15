@@ -21,8 +21,8 @@ public class ElectricityWireColors : IModApi
     // Doesn't actually update the color on the mesh (call `TogglePulse`)
     private static void UpdateWireColor(IWireNode wire, TileEntityPowered te)
     {
-        if (te == null || wire == null) return;
-        PowerItem pitem = te.GetPowerItem();
+        PowerItem pitem = te?.GetPowerItem();
+        if (te == null || wire == null || pitem == null) return;
         if (pitem.Parent != null && pitem.PowerItemType == pitem.Parent.PowerItemType)
         {
             if (te.PowerItemType == PowerItem.PowerItemTypes.TripWireRelay)

@@ -11,6 +11,10 @@ You can use it standalone or alongside [Electricity Overhaul Mod][1].
 
 ## Changelog
 
+## Version 1.0.2
+
+- Fix potential null pointer access in `UpdateWireColor`
+
 ## Version 1.0.1
 
 - Fix issue when map is loading with wire tool equipped
