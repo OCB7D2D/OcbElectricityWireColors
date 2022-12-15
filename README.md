@@ -22,6 +22,10 @@ Simply [download here from GitHub][2] and put into your A20 Mods folder:
 ## Version 1.0.2
 
 - Fix potential null pointer access in `UpdateWireColor`
+- Add gitattributes to force line endings on file types
+- Add better compatibility for MSVC solution file
+- Automated deployment and release packaging
+- Update .NET Target Framework Version to 4.8
 
 ## Version 1.0.1
 
