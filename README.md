@@ -13,11 +13,16 @@ You can use it standalone or alongside [Electricity Overhaul Mod][1].
 
 ### Download and Install
 
-Simply [download here from GitHub][2] and put into your A20 Mods folder:
+Simply [download here from GitHub][2] and put into your A21 Mods folder:
 
-- https://github.com/OCB7D2D/ElectricityOverhaul/archive/master.zip (master branch)
+- https://github.com/OCB7D2D/OcbElectricityOverhaul/releases (preferred method)
+- https://github.com/OCB7D2D/OcbElectricityOverhaul/archive/master.zip (master branch)
 
 ## Changelog
+
+### Version 1.2.1
+
+- Change mod folder to add OCB prefix
 
 ### Version 1.2.0
 
@@ -50,9 +55,9 @@ Simply [download here from GitHub][2] and put into your A20 Mods folder:
 
 ## Compatibility
 
-Developed initially for version A20(b238), updated through A21.0(b324).
+Developed initially for version A20(b238), updated through A21.2(b37).
 
-[1]: https://github.com/OCB7D2D/ElectricityOverhaul
-[2]: https://github.com/OCB7D2D/ElectricityOverhaul/releases
-[3]: https://github.com/OCB7D2D/ElectricityOverhaul/actions/workflows/ci.yml
-[4]: https://github.com/OCB7D2D/ElectricityOverhaul/actions/workflows/ci.yml/badge.svg
+[1]: https://github.com/OCB7D2D/OcbElectricityOverhaul
+[2]: https://github.com/OCB7D2D/OcbElectricityOverhaul/releases
+[3]: https://github.com/OCB7D2D/OcbElectricityOverhaul/actions/workflows/ci.yml
+[4]: https://github.com/OCB7D2D/OcbElectricityOverhaul/actions/workflows/ci.yml/badge.svg

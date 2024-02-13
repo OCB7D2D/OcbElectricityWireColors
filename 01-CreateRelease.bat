@@ -1,6 +1,6 @@
 @echo off
 
-SET NAME=ElectricityWireColors
+SET NAME=OcbElectricityWireColors
 
 if not exist build\ (
   mkdir build
