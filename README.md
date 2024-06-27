@@ -1,4 +1,4 @@
-# OCB Electricity Wire Colors Mod - 7 Days to Die (A21) Addon
+# OCB Electricity Wire Colors Mod - 7 Days to Die (V1.0 exp) Addon
 
 This Mod changes the wire pulse color according to the power state.
 It makes it easier to see which part of your cable-mess is missing
@@ -13,12 +13,17 @@ You can use it standalone or alongside [Electricity Overhaul Mod][1].
 
 ### Download and Install
 
-Simply [download here from GitHub][2] and put into your A21 Mods folder:
+End-Users are encouraged to download my mods from [NexusMods][2].  
+Every download there helps me to buy stuff for mod development.
 
-- https://github.com/OCB7D2D/OcbElectricityOverhaul/releases (preferred method)
-- https://github.com/OCB7D2D/OcbElectricityOverhaul/archive/master.zip (master branch)
+Otherwise please use one of the [official releases][5] here.  
+Only clone or download the repo if you know what you do!
 
 ## Changelog
+
+### Version 1.3.0
+
+- First compatibility with V1.0 (exp)
 
 ### Version 1.2.1
 
@@ -58,6 +63,7 @@ Simply [download here from GitHub][2] and put into your A21 Mods folder:
 Developed initially for version A20(b238), updated through A21.2(b37).
 
 [1]: https://github.com/OCB7D2D/OcbElectricityOverhaul
-[2]: https://github.com/OCB7D2D/OcbElectricityOverhaul/releases
-[3]: https://github.com/OCB7D2D/OcbElectricityOverhaul/actions/workflows/ci.yml
-[4]: https://github.com/OCB7D2D/OcbElectricityOverhaul/actions/workflows/ci.yml/badge.svg
+[2]: https://github.com/OCB7D2D/OcbElectricityWireColors/releases
+[3]: https://github.com/OCB7D2D/OcbElectricityWireColors/actions/workflows/ci.yml
+[4]: https://github.com/OCB7D2D/OcbElectricityWireColors/actions/workflows/ci.yml/badge.svg
+[5]: https://www.nexusmods.com/7daystodie/mods/1720
