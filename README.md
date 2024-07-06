@@ -13,10 +13,10 @@ You can use it standalone or alongside [Electricity Overhaul Mod][1].
 
 ### Download and Install
 
-End-Users are encouraged to download my mods from [NexusMods][2].  
+End-Users are encouraged to download my mods from [NexusMods][5].  
 Every download there helps me to buy stuff for mod development.
 
-Otherwise please use one of the [official releases][5] here.  
+Otherwise please use one of the [official releases][2] here.  
 Only clone or download the repo if you know what you do!
 
 ## Changelog
