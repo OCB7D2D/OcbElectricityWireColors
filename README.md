@@ -1,4 +1,4 @@
-# OCB Electricity Wire Colors Mod - 7 Days to Die (V2.0) Addon
+# OCB Electricity Wire Colors Mod - 7 Days to Die (V2.1) Addon
 
 This Mod changes the wire pulse color according to the power state.
 It makes it easier to see which part of your cable-mess is missing
